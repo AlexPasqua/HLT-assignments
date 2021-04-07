@@ -46,18 +46,16 @@ class ParserState():
         ###         1. Shift
         ###         2. Left Arc
         ###         3. Right Arc
-
         if transition == 0:     # shift
             self.stack.append(self.buffer.pop(0))
-        elif transition == 1:   # right arch
-            arch = (self.stack[-2], self.stack[-1])
-            self.arcs.append(arch)
-            self.stack.pop(-1)
-        elif transition == 2:   # left arch
+        elif transition % 2 == 0:   # left arch
             arch = (self.stack[-1], self.stack[-2])
             self.arcs.append(arch)
             self.stack.pop(-2)
-
+        else:  # right arch
+            arch = (self.stack[-2], self.stack[-1])
+            self.arcs.append(arch)
+            self.stack.pop(-1)
         ### END YOUR CODE
 
 

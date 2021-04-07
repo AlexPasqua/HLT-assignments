@@ -107,9 +107,9 @@ class Parser():
                 pred_h = arc[0].id
                 gold_h = sent[arc[1].id - 1].head
                 UAS += pred_h == gold_h
-                pred_l = arc[2]
-                gold_l = sent[arc[1].id - 1].deprel
-                LAS += pred_l == gold_l and pred_h == gold_h
+                # pred_l = arc[2]
+                # gold_l = sent[arc[1].id - 1].deprel
+                # LAS += pred_l == gold_l and pred_h == gold_h
                 all_tokens += 1
         UAS /= all_tokens
         LAS /= all_tokens

@@ -1,3 +1,4 @@
+import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 
@@ -38,7 +39,7 @@ class FeaturesEmbedding(layers.Layer):
         d = self.dep_emb(x[:,2])
         o = self.concat([w, p, d])
         # return single vector of all features
-        return self.flatten(o) 
+        return self.flatten(o)
 
 
 class ParserModel(keras.Model):
@@ -90,10 +91,17 @@ class ParserModel(keras.Model):
         ###     Model: https://www.tensorflow.org/guide/keras/custom_layers_and_models
         ###     Dropout: https://www.tensorflow.org/api_docs/python/tf/keras/layers/Dropout
         ###
-
+        self.features_embedding = FeaturesEmbedding(embeddings=embeddings, pos_size=n_pos, pos_dim=tag_size,
+                                                    deprel_size=n_tags, deprel_dim=tag_size)
+        self.dense = layers.Dense(units=self.hidden_size, activation="relu")
+        self.dropout = layers.Dropout(dropout_prob)
+        self.softmax = layers.Softmax()
+        initializer = keras.initializers.GlorotUniform()
+        self.hidden_to_logits_weight = initializer(shape=(hidden_size, n_actions))
+        self.hidden_to_logits_bias = initializer(shape=(1, n_actions))
         ### END YOUR CODE
 
-        
+
     def call(self, inputs, training=False):
         """
         Run the model forward.
@@ -121,6 +129,13 @@ class ParserModel(keras.Model):
         ### Please see the following docs for support:
         ###     Matrix product: https://www.tensorflow.org/api_docs/python/tf/linalg/matmul
         ###     ReLU: https://www.tensorflow.org/api_docs/python/tf/keras/activations/relu
+
+        x = self.features_embedding(inputs)
+        h = self.dense(x)
+        h = self.dropout(h)
+        l = tf.linalg.matmul(h, self.hidden_to_logits_weight) # + self.hidden_to_logits_bias
+        y_hat = self.softmax(l)
+        return y_hat
 
         ### END YOUR CODE
 
